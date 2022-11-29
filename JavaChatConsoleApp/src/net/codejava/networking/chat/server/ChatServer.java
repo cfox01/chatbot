@@ -14,6 +14,7 @@ public class ChatServer {
 	private int port;
 	private Set<String> userNames = new HashSet<>();
 	private Set<UserThread> userThreads = new HashSet<>();
+	private HashMap<UserThread, String> users = new HashMap<>();
 
 	public ChatServer(int port) {
 		this.port = port;
@@ -30,6 +31,7 @@ public class ChatServer {
 
 				UserThread newUser = new UserThread(socket, this);
 				userThreads.add(newUser);
+				users.put(newUser, "null");
 				newUser.start();
 
 			}
@@ -64,6 +66,15 @@ public class ChatServer {
 			}
 		}
 	}
+	/**
+     * Delivers a private message from one User to another
+     * @param toUser, message recipient
+     * @param message Private message of the form "(Private)[username] message"
+     * @param sender User who sent
+     */
+    void privMessage(UserThread toUser, String message, UserThread sender) {
+    	toUser.sendMessage(message);
+    }
 
 	/**
 	 * Stores username of the newly connected client.
@@ -86,6 +97,9 @@ public class ChatServer {
 	Set<String> getUserNames() {
 		return this.userNames;
 	}
+	HashMap<UserThread, String> getUsers() {
+        return this.users;
+    }
 
 	/**
 	 * Returns true if there are other users connected (not count the currently connected user)

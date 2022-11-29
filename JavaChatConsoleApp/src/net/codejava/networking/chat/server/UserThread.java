@@ -14,6 +14,7 @@ public class UserThread extends Thread {
 	private Socket socket;
 	private ChatServer server;
 	private PrintWriter writer;
+	private HashMap<UserThread, String> users = new HashMap<>();
 
 	public UserThread(Socket socket, ChatServer server) {
 		this.socket = socket;
@@ -32,18 +33,38 @@ public class UserThread extends Thread {
 
 			String userName = reader.readLine();
 			server.addUserName(userName);
+			users = server.getUsers();
 
 			String serverMessage = "New user connected: " + userName;
 			server.broadcast(serverMessage, this);
+			users.replace(this, userName);
 
 			String clientMessage;
 
 			do {
-				clientMessage = reader.readLine();
-				serverMessage = "[" + userName + "]: " + clientMessage;
-				server.broadcast(serverMessage, this);
-
-			} while (!clientMessage.equals("bye"));
+                clientMessage = reader.readLine();
+                String[] messageParts = clientMessage.split(" ");
+                serverMessage = "[" + userName + "]: " + clientMessage;
+                if (clientMessage.charAt(0) == '@') {
+                	
+                	//if nothing after @, throws an exception
+                	for (UserThread name: server.getUserThreads()) {
+                    	System.out.println("checking users");
+                    		//messageParts[0]
+                		if (clientMessage.contains(users.get(name))) {
+                			server.privMessage(name, "(Private)" + serverMessage, this);
+                		}
+                		else {
+                			System.out.println("No valid users specified");
+                		}
+                	}
+                	
+                }
+                else {
+                    server.broadcast(serverMessage, this);
+                }
+ 
+            } while (!clientMessage.equals("bye"));
 
 			server.removeUser(userName, this);
 			socket.close();
