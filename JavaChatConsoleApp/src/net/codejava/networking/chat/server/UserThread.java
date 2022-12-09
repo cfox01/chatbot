@@ -51,7 +51,7 @@ public class UserThread extends Thread {
                 	for (UserThread name: server.getUserThreads()) {
                     	System.out.println("checking users");
                     		//messageParts[0]
-                		if (clientMessage.contains(users.get(name))) {
+                		if (messageParts[0].contains(users.get(name))) {
                 			server.privMessage(name, "(Private)" + serverMessage, this);
                 		}
                 		else {
